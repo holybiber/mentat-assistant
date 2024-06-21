@@ -11,9 +11,12 @@ The assistant will look up prompts/command.xml and run it, using any other
 args for substituting place holders in the defined prompt.
 """
 
+import asyncio
 import logging
 import os
 import argparse
+from typing import List
+from mentat import Mentat  # type: ignore
 
 # Possibly switch to lxml.etree in the future to support schema validation
 import sys
@@ -26,7 +29,7 @@ class Assistant:
         self.promptsdir = promptsdir
         self.args = args
 
-    def run(self) -> None:
+    async def run(self) -> None:
         logging.info(f"Starting to run {self.command}")
         # Open and parse XML file
         file_path = os.path.join(self.promptsdir, f"{self.command}.xml")
@@ -40,8 +43,17 @@ class Assistant:
             logging.error(f"Command definition file not found: {file_path}")
             return
 
+        # Prepare prompt and context
         prompt = self.get_prompt(root)
         logging.info(prompt)
+        context = self.get_context(root)
+        logging.info(f"Files to include as context: {context}")
+
+        # Now let mentat do the work
+        client = Mentat(paths=context)
+        await client.startup()
+        await client.call_mentat_auto_accept(prompt)
+        await client.shutdown()
 
     # Get prompt from XML and replace all placeholders with their values.
     # Ask the user now for values of arguments missing in the command line
@@ -68,6 +80,18 @@ class Assistant:
             prompt = prompt.replace(argument.get("id"), value)
         return prompt
 
+    # Parse XML to get the list of files / directories that should get included
+    # as context
+    def get_context(self, xml_root) -> List[str]:
+        ret: List[str] = []
+        context_node = xml_root.find("context")
+        if context_node is None:
+            logging.info("No <context> node found in {self.command}.xml")
+            return ret
+        for include in context_node.findall("include"):
+            ret.append(include.get("path"))
+        return ret
+
 
 if __name__ == "__main__":
     description = "Run pre-defined functions/prompts with mentat"
@@ -82,7 +106,7 @@ if __name__ == "__main__":
 
     # The command may have more arguments we don't know yet.
     # An alternative would be to parse the available XML files now and add
-    # their argument structure via parser.add_subparsers.
+    # their argument structure via parser.add_subparsers().
     # However that would be incompatible with providing a --promptsdir option
     args, more_args = parser.parse_known_args()
 
@@ -97,4 +121,4 @@ if __name__ == "__main__":
     root.addHandler(sh)
 
     assistant = Assistant(args.command, more_args, promptsdir=args.promptsdir)
-    assistant.run()
+    asyncio.run(assistant.run())
