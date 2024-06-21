@@ -1,0 +1,30 @@
+name: Code quality
+
+on: [push, pull_request]
+
+jobs:
+  black-formatting:
+    # Make sure source code is formatted with the black auto-formatter:
+    # https://github.com/psf/black
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
+
+  lint:
+    # Run flake8 for linting and mypy for type checking
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Install flake8 and mypy
+        run: pip install -r requirements-dev.txt
+
+      - name: Run flake8
+        run: flake8 .
+
+      - name: Run mypy
+        run: mypy .

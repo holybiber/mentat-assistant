@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<function>
+    <prompt>
+        Write UNIT_TEST_CLASS_NAME tests for the METHOD_NAME in CLASS_TO_TEST class. Guideline:
+
+        - Test file should be complete and compilable, without need for further actions.
+        - Ensure that each test focuses on a single use case to maintain clarity and readability.
+        - PHP test file MUST starts with php opening tag ?php
+        - Write a description of the class and the method being tested.
+        - Generated test class should be in namespace `TEST_NAME_SPACE`
+    </prompt>
+    <argument id="CLASS_TO_TEST" question="Please enter the class to test" alias="class" />
+    <argument id="METHOD_NAME" question="Please enter the method to test" alias="method" />
+    <argument id="UNIT_TEST_CLASS_NAME" question="Please enter the name of the unit test class name" alias="test-class" />
+    <argument id="TEST_NAME_SPACE" question="Please enter the test name space" alias="test-ns"/>
+    <variable id="CLASS_TO_TEST_FILE" argument="CLASS_TO_TEST" converter="resolveClassPath"/>
+    <variable id="UNIT_TEST_CLASS_FILE" argument="UNIT_TEST_CLASS_NAME" converter="resolveClassPath"/>
+    <context>
+        <include path="tests"/>
+        <include path="$CLASS_TO_TEST_FILE"/>
+    </context>
+</function>
