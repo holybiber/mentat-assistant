@@ -13,6 +13,7 @@ args for substituting place holders in the defined prompt.
 ## Code quality
 To make sure to have some good level of code quality please run
 - `black .` to auto-format the code with the [black auto-formatter](https://github.com/psf/black)
+- `python3 -m unittest discover` to run all tests
 - `flake8 .` to check for any linting issues
 - `mypy .` for static type checking
 
@@ -22,5 +23,5 @@ and overly complicated for a non-mission-critical script.
 Instead I have plans to implement XML schema validation to ensure the
 XML command definition files are well-formatted with all required attributes.
 
-With GitHub Actions these three commands are run on any push or pull request in the repository,
+With GitHub Actions these four commands are run on any push or pull request in the repository,
 see the [Github workflow](.github/workflows/main.yml)

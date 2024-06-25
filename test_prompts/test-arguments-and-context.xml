@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<function>
+    <prompt>
+        Test method `METHOD_NAME` in class `CLASS_NAME`.
+    </prompt>
+    <argument id="CLASS_NAME" question="Please enter the class to test" alias="class" />
+    <argument id="METHOD_NAME" question="Please enter the method to test" alias="method" />
+    <context>
+        <include path="tests"/>
+        <include path="src"/>
+    </context>
+</function>

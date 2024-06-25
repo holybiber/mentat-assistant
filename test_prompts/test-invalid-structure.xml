@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<function>
+    <prompt>
+        Write a test for method `METHOD_NAME` in class `CLASS_NAME`.
+    </prompt>
+    <context>
+        <include path="tests"/>
+</function>

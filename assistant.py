@@ -17,9 +17,9 @@ import os
 import argparse
 from typing import List
 from mentat import Mentat  # type: ignore
+import sys
 
 # Possibly switch to lxml.etree in the future to support schema validation
-import sys
 import xml.etree.ElementTree as ET
 
 
@@ -31,16 +31,10 @@ class Assistant:
 
     async def run(self) -> None:
         logging.info(f"Starting to run {self.command}")
-        # Open and parse XML file
-        file_path = os.path.join(self.promptsdir, f"{self.command}.xml")
         try:
-            tree = ET.parse(file_path)
-            root = tree.getroot()
-        except ET.ParseError as e:
-            logging.error(f"Error parsing XML: {e}")
-            return
-        except FileNotFoundError:
-            logging.error(f"Command definition file not found: {file_path}")
+            root = self.get_xml_root()
+        except RuntimeError as e:
+            logging.error(e)
             return
 
         # Prepare prompt and context
@@ -50,10 +44,24 @@ class Assistant:
         logging.info(f"Files to include as context: {context}")
 
         # Now let mentat do the work
+        logging.info("Running Mentat now...")
         client = Mentat(paths=context)
         await client.startup()
         await client.call_mentat_auto_accept(prompt)
         await client.shutdown()
+        logging.info("Done. Mentat finished its work.")
+
+    def get_xml_root(self):
+        # Open and parse XML file
+        file_path = os.path.join(self.promptsdir, f"{self.command}.xml")
+        try:
+            tree = ET.parse(file_path)
+            root = tree.getroot()
+        except ET.ParseError as e:
+            raise RuntimeError(f"Error parsing XML: {e}")
+        except FileNotFoundError:
+            raise RuntimeError(f"Command definition file not found: {file_path}")
+        return root
 
     # Get prompt from XML and replace all placeholders with their values.
     # Ask the user now for values of arguments missing in the command line
@@ -73,7 +81,7 @@ class Assistant:
             alias = argument.get("alias")
             value = getattr(self.args, alias.replace("-", "_"), None)
             if value:
-                logging.info("Replacing {argument.get('id')} with {value}")
+                logging.info(f"Replacing {argument.get('id')} with {value}")
             else:
                 question = argument.get("question")
                 value = input(f"Missing --{alias}. {question}\n")
@@ -86,7 +94,7 @@ class Assistant:
         ret: List[str] = []
         context_node = xml_root.find("context")
         if context_node is None:
-            logging.info("No <context> node found in {self.command}.xml")
+            logging.info(f"No <context> node found in {self.command}.xml")
             return ret
         for include in context_node.findall("include"):
             ret.append(include.get("path"))
