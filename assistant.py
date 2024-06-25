@@ -15,7 +15,7 @@ import asyncio
 import logging
 import os
 import argparse
-from typing import List
+from typing import Final, List
 from mentat import Mentat  # type: ignore
 import sys
 
@@ -24,10 +24,10 @@ import xml.etree.ElementTree as ET
 
 
 class Assistant:
-    def __init__(self, command: str, args, promptsdir: str = "prompts"):
-        self.command = command
-        self.promptsdir = promptsdir
-        self.args = args
+    def __init__(self, command: str, args: List[str], promptsdir: str = "prompts"):
+        self.command: Final[str] = command
+        self.promptsdir: Final[str] = promptsdir
+        self.args: Final[List[str]] = args
 
     async def run(self) -> None:
         logging.info(f"Starting to run {self.command}")
@@ -74,12 +74,12 @@ class Assistant:
         for argument in xml_root.findall("argument"):
             parser.add_argument(f"--{argument.get('alias')}")
 
-        self.args = parser.parse_args(self.args)
+        args = parser.parse_args(self.args)
         prompt = raw_prompt
         # Go through all arguments and ask the user for missing arguments
         for argument in xml_root.findall("argument"):
             alias = argument.get("alias")
-            value = getattr(self.args, alias.replace("-", "_"), None)
+            value = getattr(args, alias.replace("-", "_"), None)
             if value:
                 logging.info(f"Replacing {argument.get('id')} with {value}")
             else:
@@ -101,7 +101,8 @@ class Assistant:
         return ret
 
 
-if __name__ == "__main__":
+# Parse the given arguments and return accordingly initialized Assistant
+def parse_args(sys_args) -> Assistant:
     description = "Run pre-defined functions/prompts with mentat"
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("command", help="Name of the function / prompt")
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     # An alternative would be to parse the available XML files now and add
     # their argument structure via parser.add_subparsers().
     # However that would be incompatible with providing a --promptsdir option
-    args, more_args = parser.parse_known_args()
+    args, more_args = parser.parse_known_args(sys_args)
 
     # Set up logging
     root = logging.getLogger()
@@ -128,5 +129,9 @@ if __name__ == "__main__":
     sh.setFormatter(fformatter)
     root.addHandler(sh)
 
-    assistant = Assistant(args.command, more_args, promptsdir=args.promptsdir)
+    return Assistant(args.command, more_args, promptsdir=args.promptsdir)
+
+
+if __name__ == "__main__":
+    assistant = parse_args(sys.argv[1:])
     asyncio.run(assistant.run())

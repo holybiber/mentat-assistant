@@ -1,7 +1,7 @@
 import asyncio
 import unittest
 from unittest.mock import patch, AsyncMock
-from assistant import Assistant
+from assistant import Assistant, parse_args
 
 
 class TestAssistant(unittest.TestCase):
@@ -35,9 +35,14 @@ class TestAssistant(unittest.TestCase):
         self.assertIn("Command definition file not found", str(error.exception))
 
     def test_get_prompt(self):
+        expected_prompt = "Test method `start` in class `TestClass`."
         root = self.assistant.get_xml_root()
-        prompt = self.assistant.get_prompt(root)
-        self.assertEqual(prompt, "Test method `start` in class `TestClass`.")
+        self.assertEqual(self.assistant.get_prompt(root), expected_prompt)
+
+        # giving arguments in the form --class=TestClass
+        # should give the same result as giving it as --class TestClass
+        self.assistant.args = ["--class=TestClass", "--method=start"]
+        self.assertEqual(self.assistant.get_prompt(root), expected_prompt)
 
     def test_get_context(self):
         # Test normal behavior
@@ -58,6 +63,34 @@ class TestAssistant(unittest.TestCase):
             "Test method `start` in class `TestClass`."
         )
         mock_mentat.return_value.shutdown.assert_called_once()
+
+
+class TestMain(unittest.TestCase):
+    def test_parse_args(self):
+        assistant = parse_args(["generate-unit-tests"])
+        self.assertEqual(assistant.command, "generate-unit-tests")
+        self.assertEqual(assistant.promptsdir, "prompts")
+        self.assertListEqual(assistant.args, [])
+
+        assistant = parse_args(["test", "--class=TestClass", "-v"])
+        self.assertEqual(assistant.command, "test")
+        self.assertListEqual(assistant.args, ["--class=TestClass"])
+
+        assistant = parse_args(
+            [
+                "test",
+                "--class=TestClass",
+                "--method",
+                "testMethod",
+                "--promptsdir",
+                "test_prompts",
+            ]
+        )
+        self.assertEqual(assistant.command, "test")
+        self.assertListEqual(
+            assistant.args, ["--class=TestClass", "--method", "testMethod"]
+        )
+        self.assertEqual(assistant.promptsdir, "test_prompts")
 
 
 if __name__ == "__main__":
