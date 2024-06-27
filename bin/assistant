@@ -1,0 +1,13 @@
+#!/bin/bash
+
+APPDIR=$(readlink -f $0)
+APPDIR=$(dirname "$APPDIR")
+APPDIR=$(dirname "$APPDIR")
+
+# Load ~/.mentat/.mentat_config into the container if it exists
+# Introduce a variable as this is not possible directly with docker compose
+if [ -f ~/.mentat/.mentat_config.json ]; then
+  MENTAT_CONFIG=~/.mentat/.mentat_config.json
+fi
+
+MENTAT_CONFIG=$MENTAT_CONFIG docker compose -f $APPDIR/docker-compose.yml run --rm assistant $@

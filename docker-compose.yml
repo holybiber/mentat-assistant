@@ -1,0 +1,14 @@
+services:
+  assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - $PWD:/home/workingdir
+      # Load ~/.mentat/.mentat_config.json if it exists (see ./bin/assistant)
+      - ${MENTAT_CONFIG:-/dev/null}:/root/.mentat/.mentat_config.json:ro
+    stdin_open: true
+    tty: true
+    working_dir: /home/workingdir
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
