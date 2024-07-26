@@ -9,6 +9,9 @@ Usage (without docker):
 
 The assistant will look up prompts/command.xml and run it. It'll use any other
 args for substituting place holders in the defined prompt and ask for any missing arguments.
+Additionally you can fill variables with a converter from other arguments.
+Currently there is one converter to resolve fully qualified PHP class names to file names
+so you can use the result either in your prompt or to automatically add files into the context.
 You can define your own custom prompts you want Mentat to run by adding them to the `prompts/` folder.
 Look at [prompts/generate-unit-tests.xml](prompts/generate-unit-tests.xml) for an example of the XML structure.
 
@@ -49,7 +52,7 @@ This code is licensed unter the [MIT License](LICENSE) - you're warmly invited t
 ## Code quality
 To make sure to have some good level of code quality please run
 - `black .` to auto-format the code with the [black auto-formatter](https://github.com/psf/black)
-- `python3 -m unittest discover` to run all tests
+- `python3 -m unittest discover -s test/` to run all tests
 - `flake8 .` to check for any linting issues
 - `mypy .` for static type checking
 

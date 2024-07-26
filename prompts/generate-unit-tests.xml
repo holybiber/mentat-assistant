@@ -8,6 +8,7 @@
         - PHP test file MUST starts with php opening tag ?php
         - Write a description of the class and the method being tested.
         - Generated test class should be in namespace `TEST_NAME_SPACE`
+        - save the generated test file as UNIT_TEST_CLASS_FILE
     </prompt>
     <argument id="CLASS_TO_TEST" question="Please enter the class to test" alias="class" />
     <argument id="METHOD_NAME" question="Please enter the method to test" alias="method" />

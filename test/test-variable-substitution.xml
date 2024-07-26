@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<function>
+    <prompt>
+        Test class `CLASS_NAME`. Save the resulting `TEST_CLASS_NAME` to `TEST_FILE_NAME`
+    </prompt>
+    <argument id="CLASS_NAME" question="Please enter the class" alias="class" />
+    <argument id="TEST_CLASS_NAME" question="Please enter the name of the test class that should be generated" alias="test-class" />
+    <variable id="FILE_NAME" argument="CLASS_NAME" converter="resolveClassPath"/>
+    <variable id="TEST_FILE_NAME" argument="TEST_CLASS_NAME" converter="resolveClassPath"/>
+    <context>
+        <include path="tests"/>
+        <include path="$FILE_NAME"/>
+    </context>
+</function>

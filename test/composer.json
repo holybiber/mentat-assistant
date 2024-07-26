@@ -1,0 +1,22 @@
+{
+    "name": "mentat-assistant/test",
+    "description": "Test composer.json for Mentat Assistant",
+    "autoload": {
+        "psr-4": {
+            "Acme\\Log\\Writer\\": "./acme-log-writer/lib/",
+            "Aura\\Web\\": "/path/aura-web/src/",
+            "Symfony\\Core\\": "./vendor/Symfony/Core/",
+            "Zend\\": "/usr/includes/Zend/",
+            "": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Aura\\Web\\Tests\\": "/path/aura-web/tests/",
+            "Vendor\\Namespace\\": ""
+        }
+    }
+}
